@@ -1,39 +1,67 @@
+// frontend/src/pages/Feedback.js
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
-const Feedback = () => {
-  const navigate = useNavigate();
+export default function Feedback() {
   const { state } = useLocation();
-  const { facilityId } = state || {};
+  const { facilityId, facilityName } = state || {};
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const navigate = useNavigate();
 
-  if (!facilityId) return <p>No facility selected for feedback.</p>;
+  if (!facilityId) {
+    return <p>No facility selected.</p>;
+  }
 
-  const handleSubmit = () => {
-    api.post('/feedback', { user_id:1, facility_id:facilityId, rating, comment })
-       .then(res => {
-         alert(`Thanks! New avg rating: ${res.data.avg_rating}`);
-         navigate('/');
-       });
+  const stars = [1,2,3,4,5];
+
+  const handleSubmit = async () => {
+    await api.post('/feedback', {
+      user_id: 1,
+      facility_id: facilityId,
+      rating,
+      comment
+    });
+    navigate(`/stats/${facilityId}`);
   };
 
   return (
     <div className="container">
       <h1>Leave Feedback</h1>
-      <label>Rating:</label>
-      <select value={rating} onChange={e => setRating(+e.target.value)}>
-        {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
-      </select>
-      <textarea
-        value={comment}
-        onChange={e => setComment(e.target.value)}
-        placeholder="Your comments"
-      />
-      <button onClick={handleSubmit}>Submit</button>
+      <div className="card">
+        <h3>{facilityName}</h3>
+      </div>
+
+      <div>
+        <h3>Your Rating:</h3>
+        <div className="star-rating">
+          {stars.map(s => (
+            <span
+              key={s}
+              className={`star ${s <= rating ? 'filled' : ''}`}
+              role="button"
+              onClick={() => setRating(s)}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ margin: '16px 0' }}>
+        <textarea
+          rows="4"
+          placeholder="Leave a comment..."
+          value={comment}
+          onChange={e => setComment(e.target.value)}
+          style={{ width:'100%', padding:'8px', borderRadius:'4px', border:'1px solid #ccc' }}
+        />
+      </div>
+
+      <button className="btn" onClick={handleSubmit}>
+        Submit Feedback
+      </button>
     </div>
   );
-};
-
-export default Feedback;
+}

@@ -9,6 +9,8 @@ const feedback  = require('./routes/feedback');
 const reminders = require('./routes/reminders');
 const wasteTypes = require('./routes/wasteTypes');
 const stats = require('./routes/stats');
+const products   = require('./routes/products');
+
 
 
 
@@ -22,6 +24,8 @@ app.use('/feedback', feedback);
 app.use('/reminders', reminders);   
 app.use('/waste-types', wasteTypes);
 app.use('/stats', stats);
+app.use('/products',   products);
+
 
 
 

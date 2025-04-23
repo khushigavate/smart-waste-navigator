@@ -1,42 +1,65 @@
+// frontend/src/pages/Schedule.js
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
-const Schedule = () => {
-  const navigate = useNavigate();
+export default function Schedule() {
   const { state } = useLocation();
-  const { facility, wasteType } = state || {};
-  const [date, setDate] = useState('');
+  const { facility, wasteType, product } = state || {};
+  const [pickupDate, setPickupDate] = useState('');
+  const navigate = useNavigate();
 
-  const handleSchedule = () => {
-    if (!date) return;
-    api.post('/pickups', {
+  if (!facility || !wasteType) {
+    return <p>Facility or waste type not selected. Go back to search.</p>;
+  }
+
+  const handleSubmit = async () => {
+    if (!pickupDate) return alert('Please select date & time');
+    await api.post('/pickups', {
       user_id: 1,
       facility_id: facility.id,
       waste_type_id: wasteType.id,
-      pickup_date: date.replace('T', ' ')
-    }).then(() => {
-      alert('Pickup scheduled!');
-      navigate('/reminders');
+      pickup_date: pickupDate,
     });
+    navigate('/reminders');
   };
-
-  if (!facility) return <p>No facility selected.</p>;
 
   return (
     <div className="container">
       <h1>Schedule Pickup</h1>
-      <p><strong>Facility:</strong> {facility.name}</p>
-      <p><strong>Address:</strong> {facility.address}</p>
-      <p><strong>Waste Type:</strong> {wasteType.name}</p>
-      <input
-        type="datetime-local"
-        value={date}
-        onChange={e => setDate(e.target.value)}
-      />
-      <button onClick={handleSchedule}>Confirm</button>
+
+      <div className="step-info">
+        <div className="card">
+          <h3>Facility</h3>
+          <p><strong>{facility.name}</strong><br/>{facility.address}</p>
+        </div>
+        <div className="card">
+          <h3>Waste Type</h3>
+          <p>{wasteType.name}</p>
+        </div>
+        {product && (
+          <div className="card">
+            <h3>Product</h3>
+            <p>{product.name}</p>
+          </div>
+        )}
+      </div>
+
+      // Wrap your date-picker in .input-group and add the calendar icon
+      <div className="form-row">
+        <div className="input-group">
+          <span className="icon-calendar" role="img" aria-label="calendar">📅</span>
+          <input
+            type="datetime-local"
+            value={pickupDate}
+            onChange={e => setPickupDate(e.target.value)}
+          />
+        </div>
+        <button className="btn" onClick={handleSubmit}>
+          Confirm Pickup
+        </button>
+      </div>
+
     </div>
   );
-};
-
-export default Schedule;
+}
