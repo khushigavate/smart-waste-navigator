@@ -29,6 +29,7 @@ app.use('/products',   products);
 
 
 
-
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+console.log('Starting server, will bind to port:', process.env.PORT);
+app.listen(process.env.PORT || 4000, () => {
+  console.log(`✅ Server listening on port ${process.env.PORT || 4000}`);
+});
